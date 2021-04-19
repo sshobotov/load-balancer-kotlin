@@ -1,0 +1,39 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.5.0-RC'
+}
+
+def kotlinVersion = '1.5.0-RC'
+def spekVersion = "2.0.15"
+
+group = 'com.github.sshobotov'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3'
+    // testing
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
+    testImplementation "org.spekframework.spek2:spek-dsl-jvm:$spekVersion"
+    testRuntimeOnly "org.spekframework.spek2:spek-runner-junit5:$spekVersion"
+    testRuntimeOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = '11'
+    kotlinOptions {
+        freeCompilerArgs = []
+    }
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = '11'
+}
+
+test {
+    useJUnitPlatform {
+        includeEngines 'spek2'
+    }
+}
