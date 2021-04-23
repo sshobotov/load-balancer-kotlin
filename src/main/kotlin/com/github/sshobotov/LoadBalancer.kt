@@ -1,5 +1,7 @@
 package com.github.sshobotov
 
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 import kotlin.jvm.Throws
 
 class LoadBalancer(
@@ -8,8 +10,9 @@ class LoadBalancer(
     heartBeatChecker: HeartBeatChecker? = null,
     private val capacityLimiter: CapacityLimiter<Provider>? = null
 ) {
-    private val registry: MutableSet<Provider> = mutableSetOf()
-    private val active: MutableSet<Provider> = mutableSetOf()
+    private val registry = mutableSetOf<Provider>()
+    private val active = mutableSetOf<Provider>()
+    private val lock = ReentrantLock()
 
     init {
         selectionStrategy.fillWithOptions(listOf())
@@ -20,35 +23,42 @@ class LoadBalancer(
     }
 
     fun register(provider: Provider): Boolean =
-        when {
-            registry.contains(provider) -> true
-            registry.size < providersLimit.value -> {
-                val registered = registry.add(provider)
-                if (registered) {
-                    active.add(provider)
-                    selectionStrategy.fillWithOptions(active.toList())
-                }
+        lock.withLock {
+            when {
+                registry.contains(provider) -> true
+                registry.size < providersLimit.value -> {
+                    val registered = registry.add(provider)
+                    if (registered) {
+                        active.add(provider)
+                        selectionStrategy.fillWithOptions(active.toList())
+                    }
 
-                registered
+                    registered
+                }
+                else -> false
             }
-            else -> false
         }
 
     fun exclude(provider: Provider): Boolean {
-        val removed = active.remove(provider)
-        if (removed) selectionStrategy.fillWithOptions(active.toList())
+        return lock.withLock {
+            val removed = active.remove(provider)
+            if (removed) selectionStrategy.fillWithOptions(active.toList())
 
-        return removed
+            removed
+        }
     }
 
     fun include(provider: Provider): Boolean {
-        if (registry.contains(provider)) {
-            val added = active.add(provider)
-            if (added) selectionStrategy.fillWithOptions(active.toList())
+        return lock.withLock {
+            if (registry.contains(provider)) {
+                val added = active.add(provider)
+                if (added) selectionStrategy.fillWithOptions(active.toList())
 
-            return added
+                added
+            } else {
+                false
+            }
         }
-        return false
     }
 
     @Throws(NoActiveProviders::class)

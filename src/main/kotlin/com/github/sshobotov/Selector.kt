@@ -1,5 +1,8 @@
 package com.github.sshobotov
 
+import java.util.concurrent.locks.ReentrantLock
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.withLock
 import kotlin.random.Random
 
 interface Selector<T> {
@@ -9,6 +12,7 @@ interface Selector<T> {
 }
 
 class RandomSelector<T>(private val rnd: Random = Random.Default) : Selector<T> {
+    @Volatile
     private var options: ArrayList<T> = arrayListOf()
 
     override fun fillWithOptions(options: List<T>) {
@@ -20,18 +24,33 @@ class RandomSelector<T>(private val rnd: Random = Random.Default) : Selector<T> 
 }
 
 class RoundRobinSelector<T: Comparable<T>> : Selector<T> {
-    private var options: ArrayList<T> = arrayListOf()
+    private var options = arrayListOf<T>()
+    private var previouslySelected: Pair<Int, T?> = Pair(-1, null)
 
-    private var previouslySelected: Int = -1
+    private val lock = ReentrantLock()
 
     override fun fillWithOptions(options: List<T>) {
-        this.options = ArrayList(options.sorted())
+        lock.withLock {
+            this.options = ArrayList(options.sorted())
+            if (previouslySelected.second != null) {
+                val newIndex = this.options.indexOf(previouslySelected.second)
+                if (newIndex > -1) {
+                    previouslySelected = previouslySelected.copy(first = newIndex)
+                }
+            }
+        }
     }
 
     override fun select(): T? =
-        if (options.isEmpty()) null
-        else {
-            previouslySelected = (previouslySelected + 1) % options.size
-            options[previouslySelected]
+        lock.withLock {
+            if (options.isEmpty()) null
+            else {
+                val selectedIdx = (previouslySelected.first + 1) % options.size
+                val selectedVal = options[selectedIdx]
+
+                previouslySelected = Pair(selectedIdx, selectedVal)
+
+                selectedVal
+            }
         }
 }
