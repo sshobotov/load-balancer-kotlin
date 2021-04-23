@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-object SelectorSpec: Spek({
+object SelectorSpec : Spek({
     describe("RandomSelector") {
         it("returns no value if no options provided") {
             assertNull(RandomSelector<Int>().select())
@@ -23,6 +23,7 @@ object SelectorSpec: Spek({
 
                 return instance
             }
+
             val instance = provide()
 
             val r1 = instance.select()!!

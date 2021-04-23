@@ -1,7 +1,6 @@
 package com.github.sshobotov
 
 import java.util.concurrent.locks.ReentrantLock
-import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.withLock
 import kotlin.random.Random
 
@@ -23,7 +22,7 @@ class RandomSelector<T>(private val rnd: Random = Random.Default) : Selector<T> 
         if (options.isEmpty()) null else options[rnd.nextInt(options.size)]
 }
 
-class RoundRobinSelector<T: Comparable<T>> : Selector<T> {
+class RoundRobinSelector<T : Comparable<T>> : Selector<T> {
     private var options = arrayListOf<T>()
     private var previouslySelected: Pair<Int, T?> = Pair(-1, null)
 

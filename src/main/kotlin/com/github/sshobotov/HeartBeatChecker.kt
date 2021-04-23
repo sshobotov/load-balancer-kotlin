@@ -1,12 +1,11 @@
 package com.github.sshobotov
 
+import kotlinx.coroutines.*
 import java.time.Duration
 import java.util.*
-import java.lang.Exception
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
 import kotlin.concurrent.timerTask
-import kotlinx.coroutines.*
 
 typealias Check = suspend () -> Boolean
 typealias Cancellation = () -> Unit
@@ -71,7 +70,8 @@ class ClockTimeScheduler(
         val scheduledTask = timerTask {
             try {
                 runCtx.action()
-            } catch (_: Exception) {}
+            } catch (_: Exception) {
+            }
         }
         val intervalMillis = interval.toMillis()
 

@@ -2,7 +2,6 @@ package com.github.sshobotov
 
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
-import kotlin.jvm.Throws
 
 class LoadBalancer(
     private val selectionStrategy: Selector<Provider>,
@@ -71,6 +70,6 @@ class LoadBalancer(
     }
 
     companion object Error {
-        object NoActiveProviders: Exception("No registered or active providers left")
+        object NoActiveProviders : Exception("No registered or active providers left")
     }
 }

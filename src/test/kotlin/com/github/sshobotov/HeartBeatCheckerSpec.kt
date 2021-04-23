@@ -1,15 +1,17 @@
 package com.github.sshobotov
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
+import org.spekframework.spek2.Spek
+import org.spekframework.spek2.style.specification.describe
 import java.time.Duration
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
-import org.spekframework.spek2.Spek
-import org.spekframework.spek2.style.specification.*
 import kotlin.test.assertEquals
-import kotlinx.coroutines.*
 
-object HeartBeatCheckerSpec: Spek({
+object HeartBeatCheckerSpec : Spek({
     fun testDispatcher(): CoroutineDispatcher =
         Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 

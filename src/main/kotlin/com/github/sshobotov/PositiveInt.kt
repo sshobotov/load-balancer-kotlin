@@ -1,6 +1,5 @@
 package com.github.sshobotov
 
-import java.lang.IllegalArgumentException
 import kotlin.jvm.JvmInline
 
 @JvmInline

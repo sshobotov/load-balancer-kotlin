@@ -1,5 +1,7 @@
 package com.github.sshobotov
 
+import kotlin.random.Random
+
 abstract class Provider {
     abstract val id: String
 

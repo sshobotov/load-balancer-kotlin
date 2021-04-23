@@ -1,12 +1,8 @@
 package com.github.sshobotov
 
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.jvm.Throws
 
 interface CapacityLimiter<K> {
-    /**
-     * Will check capacity and try to execute request otherwise will throw Error.LimitExceeded
-     */
     @Throws(LimitExceeded::class)
     suspend fun <T> pipe(key: K, request: suspend () -> T): T
 
